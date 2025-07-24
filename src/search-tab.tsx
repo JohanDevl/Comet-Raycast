@@ -1,7 +1,7 @@
 import { getPreferenceValues, List } from "@raycast/api";
 import { useState } from "react";
 import { Preferences } from "./interfaces";
-import { ChromeListItems } from "./components";
+import { CometListItems } from "./components";
 import { useTabSearch } from "./hooks/useTabSearch";
 
 export default function Command() {
@@ -13,7 +13,7 @@ export default function Command() {
     errorView ?? (
       <List isLoading={isLoading} onSearchTextChange={setSearchText}>
         {data.map((tab) => (
-          <ChromeListItems.TabList key={tab.key()} tab={tab} useOriginalFavicon={useOriginalFavicon} />
+          <CometListItems.TabList key={tab.key()} tab={tab} useOriginalFavicon={useOriginalFavicon} />
         ))}
       </List>
     )

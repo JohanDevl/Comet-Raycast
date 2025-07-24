@@ -1,24 +1,11 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "google-chrome",
-  "title": "Google Chrome",
-  "description": "Search open tabs, bookmarks and history in Google Chrome.",
-  "icon": "chrome-icon.png",
-  "author": "Codely",
+  "name": "comet",
+  "title": "Comet",
+  "description": "Search open tabs, bookmarks and history in Comet.",
+  "icon": "comet-icon.png",
+  "author": "xjo_nd",
   "contributors": [
-    "bromanko",
-    "crisboarna",
-    "andreaselia",
-    "rtyke",
-    "KarolRe",
-    "Aiee",
-    "nagauta",
-    "a-laughlin",
-    "tleo19",
-    "Tarocch1",
-    "santiago_perez",
-    "jonasengelmann",
-    "drewbabel",
     "xjo_nd"
   ],
   "license": "MIT",
@@ -26,49 +13,49 @@
     {
       "name": "new-tab",
       "title": "New Tab",
-      "subtitle": "Google Chrome",
-      "description": "Open a new Google Chrome tab.",
+      "subtitle": "Comet",
+      "description": "Open a new Comet tab.",
       "mode": "view"
     },
     {
       "name": "search-tab",
       "title": "Search Tabs",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "List all tabs and go to the selected.",
       "mode": "view"
     },
     {
       "name": "search-history",
       "title": "Search History",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "Search browser history.",
       "mode": "view"
     },
     {
       "name": "search-bookmarks",
       "title": "Search Bookmarks",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "Search browser bookmarks.",
       "mode": "view"
     },
     {
       "name": "search-all",
       "title": "Search All",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "Search browser all tabs and history,bookmarks.",
       "mode": "view"
     },
     {
       "name": "new-window",
       "title": "Create New Window",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "Create New Window.",
       "mode": "no-view"
     },
     {
       "name": "new-incognito-window",
       "title": "Create New Incognito Window",
-      "subtitle": "Google Chrome",
+      "subtitle": "Comet",
       "description": "Create New Incognito Window.",
       "mode": "no-view"
     }
@@ -77,12 +64,12 @@
     {
       "name": "new-tab",
       "title": "New Tab",
-      "description": "Open a blank new tab or a tab to a given website."
+      "description": "Open a blank new tab, search with Perplexity, or open a tab to a given website."
     },
     {
       "name": "new-window",
       "title": "New Window",
-      "description": "Open a blank new window or a window to a given website."
+      "description": "Open a blank new window, search with Perplexity, or open a window to a given website."
     },
     {
       "name": "search-bookmarks",
@@ -98,7 +85,7 @@
   "ai": {
     "evals": [
       {
-        "input": "@google-chrome open a new tab",
+        "input": "@comet open a new tab",
         "mocks": {
           "new-tab": "New tab opened"
         },
@@ -115,7 +102,7 @@
         ]
       },
       {
-        "input": "@google-chrome open a new tab to raycast.com",
+        "input": "@comet open a new tab to raycast.com",
         "mocks": {
           "new-tab": "New tab opened to https://raycast.com"
         },
@@ -136,7 +123,7 @@
         ]
       },
       {
-        "input": "@google-chrome open a new window",
+        "input": "@comet open a new window",
         "mocks": {
           "new-window": "New window opened"
         },
@@ -153,7 +140,7 @@
         ]
       },
       {
-        "input": "@google-chrome open a new window to raycast.com",
+        "input": "@comet open a new window to raycast.com",
         "mocks": {
           "new-window": "New window opened to https://raycast.com"
         },
@@ -174,7 +161,7 @@
         ]
       },
       {
-        "input": "@google-chrome search bookmarks for raycast",
+        "input": "@comet search bookmarks for raycast",
         "mocks": {
           "search-bookmarks": [
             {
@@ -212,7 +199,7 @@
         ]
       },
       {
-        "input": "@google-chrome search history for raycast",
+        "input": "@comet search history for raycast",
         "mocks": {
           "search-history": [
             {
@@ -253,18 +240,18 @@
   },
   "preferences": [
     {
-      "description": "Find the full path to the Google Chrome Profile path via chrome://version/. If empty, the default profile will be used.",
+      "description": "Find the full path to the Comet Profile path. If empty, the default profile will be used.",
       "label": "Profile",
       "default": "",
       "name": "profilePath",
       "required": false,
       "title": "Profile Path",
       "type": "textfield",
-      "placeholder": "/Users/username/Library/Application Support/Google/Chrome/Profile 1"
+      "placeholder": "/Users/username/Library/Application Support/Comet/Profile 1"
     },
     {
       "default": false,
-      "description": "Before enable this, you should enable 'View > Developer > Allow JavaScript from Apple Events' in every Chrome profile.",
+      "description": "Before enable this, you should enable 'View > Developer > Allow JavaScript from Apple Events' in every Comet profile.",
       "label": "Extract the favicon from every open tab",
       "name": "useOriginalFavicon",
       "required": false,

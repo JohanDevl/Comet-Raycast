@@ -2,10 +2,10 @@ import { List } from "@raycast/api";
 import { useState, ReactElement } from "react";
 import { useHistorySearch } from "./hooks/useHistorySearch";
 import { GroupedEntries, HistoryEntry } from "./interfaces";
-import { ChromeListItems } from "./components";
-import ChromeProfileDropDown from "./components/ChromeProfileDropdown";
+import { CometListItems } from "./components";
+import CometProfileDropDown from "./components/CometProfileDropdown";
 import { useCachedState } from "@raycast/utils";
-import { CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID } from "./constants";
+import { COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
 
 export const groupEntriesByDate = (allEntries?: HistoryEntry[]): GroupedEntries =>
   allEntries
@@ -25,7 +25,7 @@ export const groupEntriesByDate = (allEntries?: HistoryEntry[]): GroupedEntries 
 
 export default function Command(): ReactElement {
   const [searchText, setSearchText] = useState<string>();
-  const [profile] = useCachedState<string>(CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID);
+  const [profile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
   const { data, isLoading, errorView, revalidate } = useHistorySearch(profile, searchText);
 
   if (errorView) {
@@ -40,12 +40,12 @@ export default function Command(): ReactElement {
       onSearchTextChange={setSearchText}
       isLoading={isLoading}
       throttle={true}
-      searchBarAccessory={<ChromeProfileDropDown onProfileSelected={revalidate} />}
+      searchBarAccessory={<CometProfileDropDown onProfileSelected={revalidate} />}
     >
       {groups?.map((group) => (
         <List.Section title={group} key={group}>
           {groupedEntries?.get(group)?.map((e) => (
-            <ChromeListItems.TabHistory key={e.id} entry={e} profile={profile} type="History" />
+            <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="History" />
           ))}
         </List.Section>
       ))}

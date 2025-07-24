@@ -14,7 +14,7 @@ export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
   try {
     const openTabs = await runAppleScript(`
       set _output to ""
-      tell application "Google Chrome"
+      tell application "Comet"
         repeat with w in windows
           set _w_id to get id of w as inches as string
           set _tab_index to 1
@@ -35,7 +35,7 @@ export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
       .filter((line) => line.length !== 0)
       .map((line) => Tab.parse(line));
   } catch (err) {
-    if ((err as Error).message.includes('Can\'t get application "Google Chrome"')) {
+    if ((err as Error).message.includes('Can\'t get application "Comet"')) {
       LocalStorage.removeItem("is-installed");
     }
     await checkAppInstalled();
@@ -63,19 +63,27 @@ export async function openNewTab({
 
   let script = "";
 
-  const getOpenInProfileCommand = (profile: string) =>
-    `
+  const getOpenInProfileCommand = (profile: string) => {
+    let targetUrl = "about:blank";
+    if (url) {
+      targetUrl = url;
+    } else if (query) {
+      targetUrl = `https://perplexity.ai/search?q=${query}`;
+    }
+    
+    return `
     set profile to quoted form of "${profile}"
-    set link to quoted form of "${url ? url : "about:blank"}"
-    do shell script "open -na 'Google Chrome' --args --profile-directory=" & profile & " " & link
+    set link to quoted form of "${targetUrl}"
+    do shell script "open -na 'Comet' --args --profile-directory=" & profile & " " & link
   `;
+  };
 
   switch (openTabInProfile) {
     case SettingsProfileOpenBehaviour.Default:
       script =
         `
         set winExists to false
-        tell application "Google Chrome"
+        tell application "Comet"
             repeat with win in every window
                 if index of win is 1 then
                     set winExists to true
@@ -94,7 +102,7 @@ export async function openNewTab({
         (url
           ? `with properties {URL:"${url}"}`
           : query
-          ? 'with properties {URL:"https://www.google.com/search?q=' + query + '"}'
+          ? 'with properties {URL:"https://perplexity.ai/search?q=' + query + '"}'
           : "") +
         `
             end tell
@@ -117,7 +125,7 @@ export async function openNewTab({
 
 export async function setActiveTab(tab: Tab): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       activate
       set _wnd to first window where id is ${tab.windowsId}
       set index of _wnd to 1
@@ -129,7 +137,7 @@ export async function setActiveTab(tab: Tab): Promise<void> {
 
 export async function closeActiveTab(tab: Tab): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       activate
       set _wnd to first window where id is ${tab.windowsId}
       set index of _wnd to 1
@@ -147,7 +155,7 @@ const checkAppInstalled = async () => {
   const appInstalled = await runAppleScript(`
 set isInstalled to false
 try
-    do shell script "osascript -e 'exists application \\"Google Chrome\\"'"
+    do shell script "osascript -e 'exists application \\"Comet\\"'"
     set isInstalled to true
 end try
 
@@ -160,7 +168,7 @@ return isInstalled`);
 
 export async function createNewWindow(): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       make new window
       activate
     end tell
@@ -170,7 +178,7 @@ export async function createNewWindow(): Promise<void> {
 
 export async function createNewWindowToWebsie(website: string): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       make new window
       open location "${website}"
       activate
@@ -181,7 +189,7 @@ export async function createNewWindowToWebsie(website: string): Promise<void> {
 
 export async function createNewTab(): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       make new tab at end of tabs of window 1
       activate
     end tell
@@ -191,7 +199,7 @@ export async function createNewTab(): Promise<void> {
 
 export async function createNewTabToWebsite(website: string): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       activate
       open location "${website}"
     end tell
@@ -201,7 +209,7 @@ export async function createNewTabToWebsite(website: string): Promise<void> {
 
 export async function createNewIncognitoWindow(): Promise<void> {
   await runAppleScript(`
-    tell application "Google Chrome"
+    tell application "Comet"
       make new window with properties {mode:"incognito"}
       activate
     end tell

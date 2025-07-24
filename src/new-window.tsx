@@ -6,6 +6,6 @@ export default async function Command() {
     await closeMainWindow();
     await createNewWindow();
   } catch {
-    await showHUD("❌ Failed opening a new Google Chrome window");
+    await showHUD("❌ Failed opening a new Comet window");
   }
 }

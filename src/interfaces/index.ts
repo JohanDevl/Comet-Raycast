@@ -94,7 +94,7 @@ export interface ExecError extends Error {
   stderr: string;
 }
 
-export interface ChromeProfile {
+export interface CometProfile {
   readonly name: string;
   readonly id: string;
 }

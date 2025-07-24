@@ -6,6 +6,6 @@ export default async function Command() {
     await closeMainWindow();
     await createNewIncognitoWindow();
   } catch {
-    await showHUD("❌ Failed opening a new Google Chrome incognito window");
+    await showHUD("❌ Failed opening a new Comet incognito window");
   }
 }

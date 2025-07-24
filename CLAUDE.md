@@ -15,9 +15,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Architecture
 
-This is a **Raycast extension** for Google Chrome integration, built with TypeScript and React. The extension provides commands to interact with Chrome tabs, bookmarks, and history.
+This is a **Raycast extension** for Comet browser integration, built with TypeScript and React. The extension provides commands to interact with Comet tabs, bookmarks, and history.
 
-**Current Adaptation Project:** Extension is being adapted to support Comet browser (Chromium-based). See `PLAN_ADAPTATION_COMET.md` for detailed implementation plan.
+**Migration Status:** Extension has been successfully migrated from Google Chrome to Comet browser. All Chrome references have been replaced with Comet equivalents.
 
 ### Core Structure
 
@@ -28,15 +28,15 @@ This is a **Raycast extension** for Google Chrome integration, built with TypeSc
 **Key Architectural Components:**
 
 **Data Access Layer (`src/util/`):**
-- File system operations to read Chrome profile data
-- Chrome profile path resolution with fallback to default locations
+- File system operations to read Comet profile data
+- Comet profile path resolution with fallback to default locations
 - Bookmark and history file parsing
 
-**Chrome Interaction (`src/actions/index.tsx`):**
-- AppleScript-based Chrome automation using `run-applescript`
+**Comet Interaction (`src/actions/index.tsx`):**
+- AppleScript-based Comet automation using `run-applescript`
 - Tab management (open, close, activate, search)
 - Window and incognito window creation
-- Chrome installation verification
+- Comet installation verification
 
 **React Hooks (`src/hooks/`):**
 - `useTabSearch` - Real-time tab filtering with fuzzy search
@@ -48,27 +48,27 @@ This is a **Raycast extension** for Google Chrome integration, built with TypeSc
 - `HistoryEntry`, `BookmarkDirectory` interfaces
 - Profile and preference type definitions
 
-### Comet Browser Adaptation
+### Comet Browser Integration
 
-**Objective:** Adapt all Chrome functionality to work with Comet browser (Chromium-based).
+**Completed Migration:** All Chrome functionality has been successfully adapted to work with Comet browser (Chromium-based).
 
-**Key Adaptation Areas:**
-- AppleScript commands: Replace "Google Chrome" with "Comet" application references
-- File system paths: Update from `Application Support/Google/Chrome/` to Comet's equivalent paths
-- Profile discovery: Adapt Chrome's Local State parsing for Comet's profile system
-- Data compatibility: Leverage Chromium foundation for SQLite/JSON format compatibility
+**Migration Changes:**
+- AppleScript commands: All "Google Chrome" references replaced with "Comet" application references
+- File system paths: Updated from `Application Support/Google/Chrome/` to `Application Support/Comet/`
+- Profile discovery: Adapted for Comet's profile system structure
+- Data compatibility: Leverages Chromium foundation for SQLite/JSON format compatibility
 
-**Implementation Status:** Planning phase - see `PLAN_ADAPTATION_COMET.md` for detailed roadmap.
+**Implementation Status:** ✅ Complete - All Chrome references migrated to Comet.
 
-### Chrome Integration Details
+### Comet Integration Details
 
 **Profile Support:**
-- Reads Chrome's Local State file for profile discovery
+- Reads Comet's Local State file for profile discovery
 - Supports custom profile paths via preferences
 - Default behavior opens in topmost window; can target specific profiles
 
 **Data Sources:**
-- Chrome History SQLite database (requires sql.js)
+- Comet History SQLite database (requires sql.js)
 - Bookmarks JSON file parsing
 - Live tab data via AppleScript queries
 
@@ -83,8 +83,8 @@ This is a **Raycast extension** for Google Chrome integration, built with TypeSc
 - `@raycast/api` - Main Raycast SDK
 - `@raycast/utils` - Utilities including favicon fetching
 
-**Chrome Integration:**
-- `run-applescript` - AppleScript execution for Chrome control
-- `sql.js` - SQLite database access for Chrome history
+**Comet Integration:**
+- `run-applescript` - AppleScript execution for Comet control
+- `sql.js` - SQLite database access for Comet history
 
 The extension follows Raycast's command + tools pattern where commands provide UI interfaces and tools enable programmatic AI agent access to the same functionality.

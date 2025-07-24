@@ -46,7 +46,7 @@ export function NotInstalledError() {
                 const toast = new Toast({ style: Toast.Style.Animated, title: "Installing..." });
                 await toast.show();
                 try {
-                  execBrew("google-chrome");
+                  execBrew("comet");
                   await toast.hide();
                 } catch (e) {
                   await toast.hide();

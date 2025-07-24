@@ -1,19 +1,19 @@
 import { getPreferenceValues, List } from "@raycast/api";
 import { useState } from "react";
 import { Preferences } from "./interfaces";
-import { ChromeListItems } from "./components";
+import { CometListItems } from "./components";
 import { useTabSearch } from "./hooks/useTabSearch";
-import { CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID } from "./constants";
+import { COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
 import { useHistorySearch } from "./hooks/useHistorySearch";
 import { useCachedState } from "@raycast/utils";
 import { groupEntriesByDate } from "./search-history";
-import ChromeProfileDropDown from "./components/ChromeProfileDropdown";
+import CometProfileDropDown from "./components/CometProfileDropdown";
 import { useBookmarkSearch } from "./hooks/useBookmarkSearch";
 
 export default function Command() {
   const { useOriginalFavicon } = getPreferenceValues<Preferences>();
   const [searchText, setSearchText] = useState("");
-  const [profile] = useCachedState<string>(CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID);
+  const [profile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
 
   const { data: tabData, isLoading: isLoadingTab } = useTabSearch(searchText);
 
@@ -40,7 +40,7 @@ export default function Command() {
       isLoading={isLoadingTab || isLoadingHistory || isLoadingBookmark}
       onSearchTextChange={setSearchText}
       throttle={true}
-      searchBarAccessory={<ChromeProfileDropDown onProfileSelected={revalidate} />}
+      searchBarAccessory={<CometProfileDropDown onProfileSelected={revalidate} />}
     >
       {/* use Item for titles instead of sections for explicit feedback that the list is empty */}
       <List.Section title="Tabs">
@@ -48,7 +48,7 @@ export default function Command() {
           <List.Item title="No tabs found" key={"empty tab list item"} />
         ) : (
           tabData.map((tab) => (
-            <ChromeListItems.TabList key={tab.key()} tab={tab} useOriginalFavicon={useOriginalFavicon} />
+            <CometListItems.TabList key={tab.key()} tab={tab} useOriginalFavicon={useOriginalFavicon} />
           ))
         )}
       </List.Section>
@@ -61,7 +61,7 @@ export default function Command() {
         Array.from(groupEntriesByDate(historyData).entries(), ([groupDate, group]) => (
           <List.Section title={"History " + groupDate} key={groupDate}>
             {group.map((e) => (
-              <ChromeListItems.TabHistory key={e.id} entry={e} profile={profile} type="History" />
+              <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="History" />
             ))}
           </List.Section>
         ))
@@ -71,7 +71,7 @@ export default function Command() {
         {bookmarkData.length === 0 ? (
           <List.Item title="No bookmarks found" key={"empty bookmark list item"} />
         ) : (
-          bookmarkData.map((e) => <ChromeListItems.TabHistory key={e.id} entry={e} profile={profile} type="Bookmark" />)
+          bookmarkData.map((e) => <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="Bookmark" />)
         )}
       </List.Section>
     </List>

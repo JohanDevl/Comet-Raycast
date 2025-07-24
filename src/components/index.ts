@@ -1,3 +1,3 @@
 export * from "./error";
-export * from "./ChromeActions";
-export * from "./ChromeListItems";
+export * from "./CometActions";
+export * from "./CometListItems";

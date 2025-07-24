@@ -19,7 +19,7 @@ async function loadDatabase(): Promise<Database> {
   return new SQL.Database(db);
 }
 
-async function getChromeHistory(query?: string) {
+async function getCometHistory(query?: string) {
   try {
     const db = await loadDatabase();
 
@@ -47,7 +47,7 @@ async function getChromeHistory(query?: string) {
 
     return mappedData;
   } catch (error) {
-    console.error("Failed to retrieve Chrome history:", error);
+    console.error("Failed to retrieve Comet history:", error);
 
     return [];
   }
@@ -58,7 +58,7 @@ export default async function (input: Input) {
     return "Please enter a history search query.";
   }
 
-  const history = await getChromeHistory(input.query);
+  const history = await getCometHistory(input.query);
 
   return history;
 }

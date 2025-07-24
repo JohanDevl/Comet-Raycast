@@ -7,7 +7,7 @@ import { NotInstalledError, UnknownError } from "../components";
 
 /**
  * @name useTabSearch
- * @description Filters chrome tabs where the url and title match all tab-or-space-separated words in search query (case insensitive).  Examples given title "foo bar" with url "example.com":
+ * @description Filters comet tabs where the url and title match all tab-or-space-separated words in search query (case insensitive).  Examples given title "foo bar" with url "example.com":
  * @example Given title "foo bar" with url "example.com":
  * search "foo bar" succeeds
  * search "bar foo" succeeds

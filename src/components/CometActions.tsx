@@ -3,9 +3,9 @@ import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon } from 
 import { closeActiveTab, openNewTab, setActiveTab } from "../actions";
 import { Preferences, SettingsProfileOpenBehaviour, Tab } from "../interfaces";
 import { useCachedState } from "@raycast/utils";
-import { CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID } from "../constants";
+import { COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID } from "../constants";
 
-export class ChromeActions {
+export class CometActions {
   public static NewTab = NewTabActions;
   public static TabList = TabListItemActions;
   public static TabHistory = HistoryItemActions;
@@ -13,7 +13,7 @@ export class ChromeActions {
 
 function NewTabActions({ query, url }: { query?: string; url?: string }): ReactElement {
   const { openTabInProfile } = getPreferenceValues<Preferences>();
-  const [profileCurrent] = useCachedState(CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID);
+  const [profileCurrent] = useCachedState(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
 
   let actionTitle = "Open Empty Tab";
   if (query) {
@@ -42,7 +42,7 @@ function TabListItemActions({ tab, onTabClosed }: { tab: Tab; onTabClosed?: () =
       <CloseTab tab={tab} onTabClosed={onTabClosed} />
       <ActionPanel.Section>
         <Action.CreateQuicklink
-          quicklink={{ link: tab.url, name: tab.title, application: "Google Chrome" }}
+          quicklink={{ link: tab.url, name: tab.title, application: "Comet" }}
           shortcut={{ modifiers: ["cmd"], key: "s" }}
         />
       </ActionPanel.Section>
@@ -60,7 +60,7 @@ function HistoryItemActions({
   profile: string;
 }): ReactElement {
   const { openTabInProfile } = getPreferenceValues<Preferences>();
-  const [profileCurrent] = useCachedState(CHROME_PROFILE_KEY, DEFAULT_CHROME_PROFILE_ID);
+  const [profileCurrent] = useCachedState(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
 
   return (
     <ActionPanel title={title}>

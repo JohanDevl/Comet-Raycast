@@ -1,33 +1,31 @@
-export const defaultChromeProfilePath = ["Application Support", "Google", "Chrome"];
-export const defaultChromeStatePath = ["Application Support", "Google", "Chrome", "Local State"];
-export const DEFAULT_CHROME_PROFILE_ID = "Default";
-export const CHROME_PROFILE_KEY = "CHROME_PROFILE_KEY";
-export const CHROME_PROFILES_KEY = "CHROME_PROFILES_KEY";
+export const defaultCometProfilePath = ["Application Support", "Comet"];
+export const defaultCometStatePath = ["Application Support", "Comet", "Local State"];
+export const DEFAULT_COMET_PROFILE_ID = "Default";
+export const COMET_PROFILE_KEY = "COMET_PROFILE_KEY";
+export const COMET_PROFILES_KEY = "COMET_PROFILES_KEY";
 
 export const DownloadText = `
-  # 🚨Error: Google Chrome browser is not installed
-  ## This extension depends on Google Chrome browser. You must install it to continue.
+  # 🚨Error: Comet browser is not installed
+  ## This extension depends on Comet browser. You must install it to continue.
   
-  If you have [Homebrew](https://brew.sh/) installed then press ⏎ (Enter Key) to install Google Chrome browser.
+  [Click here to download Comet browser](https://comet.co/)
   
-  [Click here](https://www.google.com/chrome/) if you want to download manually.
-  
-  [![Google Chrome](https://www.google.com/chrome/static/images/chrome-logo-m100.svg)]()
+  [![Comet](https://comet.co/logo.svg)]()
 `;
 
 export const NoBookmarksText = `
-# 🚨Error: Google Chrome browser has no bookmarks. Please add some bookmarks to continue using this command.
+# 🚨Error: Comet browser has no bookmarks. Please add some bookmarks to continue using this command.
 
-[![Google Chrome](https://www.google.com/chrome/static/images/chrome-logo-m100.svg)]()
+[![Comet](https://comet.co/logo.svg)]()
 `;
 
 export const UnknownErrorText = `
 # 🚨Error: Something happened while trying to run your command
   
-[![Google Chrome](https://www.google.com/chrome/static/images/chrome-logo-m100.svg)]()
+[![Comet](https://comet.co/logo.svg)]()
 `;
 
 export const DEFAULT_ERROR_TITLE = "An Error Occurred";
 
-export const NOT_INSTALLED_MESSAGE = "Google Chrome not installed";
-export const NO_BOOKMARKS_MESSAGE = "Google Chrome has no bookmarks.";
+export const NOT_INSTALLED_MESSAGE = "Comet browser not installed";
+export const NO_BOOKMARKS_MESSAGE = "Comet browser has no bookmarks.";

@@ -1,16 +1,16 @@
 import fs from "fs";
 import path from "path";
 import {
-  DEFAULT_CHROME_PROFILE_ID,
-  defaultChromeProfilePath,
-  defaultChromeStatePath,
+  DEFAULT_COMET_PROFILE_ID,
+  defaultCometProfilePath,
+  defaultCometStatePath,
   NO_BOOKMARKS_MESSAGE,
 } from "../constants";
 import { getPreferenceValues } from "@raycast/api";
 import { Preferences } from "../interfaces";
 import { BookmarkDirectory, HistoryEntry, RawBookmarks } from "../interfaces";
 
-type ChromeFile = "History" | "Bookmarks";
+type CometFile = "History" | "Bookmarks";
 const userLibraryDirectoryPath = () => {
   if (!process.env.HOME) {
     throw new Error("$HOME environment variable is not set.");
@@ -18,7 +18,7 @@ const userLibraryDirectoryPath = () => {
 
   return path.join(process.env.HOME, "Library");
 };
-const getChromeFilePath = (fileName: ChromeFile, profile?: string) => {
+const getCometFilePath = (fileName: CometFile, profile?: string) => {
   const { profilePath } = getPreferenceValues<Preferences>();
   let resolvedProfilePath;
   if (profilePath) {
@@ -26,26 +26,26 @@ const getChromeFilePath = (fileName: ChromeFile, profile?: string) => {
   } else {
     resolvedProfilePath = path.join(
       userLibraryDirectoryPath(),
-      ...defaultChromeProfilePath,
-      profile ?? DEFAULT_CHROME_PROFILE_ID,
+      ...defaultCometProfilePath,
+      profile ?? DEFAULT_COMET_PROFILE_ID,
       fileName
     );
   }
 
   if (!fs.existsSync(resolvedProfilePath)) {
     throw new Error(
-      `The profile path ${resolvedProfilePath} does not exist. Please check your Chrome profile location by visiting chrome://version -> Profile Path. Then update it in Extension Settings -> Profile Path.`
+      `The profile path ${resolvedProfilePath} does not exist. Please check your Comet profile location. Then update it in Extension Settings -> Profile Path.`
     );
   }
 
   return resolvedProfilePath;
 };
 
-export const getHistoryDbPath = (profile?: string) => getChromeFilePath("History", profile);
+export const getHistoryDbPath = (profile?: string) => getCometFilePath("History", profile);
 
-export const getLocalStatePath = () => path.join(userLibraryDirectoryPath(), ...defaultChromeStatePath);
+export const getLocalStatePath = () => path.join(userLibraryDirectoryPath(), ...defaultCometStatePath);
 
-const getBookmarksFilePath = (profile?: string) => getChromeFilePath("Bookmarks", profile);
+const getBookmarksFilePath = (profile?: string) => getCometFilePath("Bookmarks", profile);
 
 function extractBookmarkFromBookmarkDirectory(bookmarkDirectory: BookmarkDirectory): HistoryEntry[] {
   const bookmarks: HistoryEntry[] = [];

@@ -3,16 +3,25 @@ import { createNewTabToWebsite, createNewWindow } from "../actions";
 type Input = {
   /** The website we should open a new window to, if one is provided. */
   website?: string;
+  /** The search query to search for, if one is provided. */
+  query?: string;
 };
 
 export default async function (input: Input) {
-  if (!input.website) {
-    await createNewWindow();
-
-    return "Opening new window";
+  // If a query is provided, search with Perplexity
+  if (input.query) {
+    const perplexityUrl = `https://perplexity.ai/search?q=${encodeURIComponent(input.query)}`;
+    await createNewTabToWebsite(perplexityUrl);
+    return `Searching "${input.query}" with Perplexity in new window`;
   }
 
-  await createNewTabToWebsite(input.website);
+  // If a website is provided, open it directly
+  if (input.website) {
+    await createNewTabToWebsite(input.website);
+    return `Opening new window to ${input.website}`;
+  }
 
-  return `Opening new window to ${input.website}`;
+  // Otherwise, open empty window
+  await createNewWindow();
+  return "Opening new window";
 }
