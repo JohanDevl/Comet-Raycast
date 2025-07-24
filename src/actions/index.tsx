@@ -13,7 +13,7 @@ export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
 
   try {
     const openTabs = await runAppleScript(`
-      set _output to ""j
+      set _output to ""
       tell application "Comet"
         repeat with w in windows
           set _w_id to get id of w as inches as string
