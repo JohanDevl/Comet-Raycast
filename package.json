@@ -9,6 +9,12 @@
     "xjo_nd"
   ],
   "license": "MIT",
+  "categories": [
+    "Web",
+    "Applications",
+    "Productivity",
+    "AI Extensions"
+  ],
   "commands": [
     {
       "name": "new-tab",
