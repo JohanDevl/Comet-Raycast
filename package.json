@@ -69,7 +69,7 @@
     {
       "name": "new-window",
       "title": "New Window",
-      "description": "Open a blank new window, search with Perplexity, or open a window to a given website."
+      "description": "Open a new window with specified profile (if exists) or current profile. Can open to a website, search with Perplexity, or open blank window."
     },
     {
       "name": "search-bookmarks",

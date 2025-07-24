@@ -24,7 +24,7 @@ function HistoryItem({
       title={title}
       subtitle={url}
       icon={getFavicon(url)}
-      actions={<CometActions.TabHistory title={title} url={url} profile={profile} />}
+      actions={<CometActions.TabHistory title={title} url={url} />}
     />
   );
 }
@@ -36,7 +36,7 @@ function TabListItem(props: { tab: Tab; useOriginalFavicon: boolean; onTabClosed
       subtitle={props.tab.urlWithoutScheme()}
       keywords={[props.tab.urlWithoutScheme()]}
       actions={<CometActions.TabList tab={props.tab} onTabClosed={props.onTabClosed} />}
-      icon={props.useOriginalFavicon ? props.tab.realFavicon() : props.tab.googleFavicon()}
+      icon={props.useOriginalFavicon ? props.tab.realFavicon() : props.tab.defaultFavicon()}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { runAppleScript } from "run-applescript";
-import { closeMainWindow, LocalStorage, popToRoot } from "@raycast/api";
-import { SettingsProfileOpenBehaviour, Tab } from "../interfaces";
+import { LocalStorage } from "@raycast/api";
+import { Tab } from "../interfaces";
 import { NOT_INSTALLED_MESSAGE } from "../constants";
 
 export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
@@ -13,7 +13,7 @@ export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
 
   try {
     const openTabs = await runAppleScript(`
-      set _output to ""
+      set _output to ""j
       tell application "Comet"
         repeat with w in windows
           set _w_id to get id of w as inches as string
@@ -41,86 +41,6 @@ export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
     await checkAppInstalled();
     return [];
   }
-}
-
-export async function openNewTab({
-  url,
-  query,
-  profileCurrent,
-  profileOriginal,
-  openTabInProfile,
-}: {
-  url?: string;
-  query?: string;
-  profileCurrent: string;
-  profileOriginal?: string;
-  openTabInProfile: SettingsProfileOpenBehaviour;
-}): Promise<boolean | string> {
-  setTimeout(() => {
-    popToRoot({ clearSearchBar: true });
-  }, 3000);
-  await Promise.all([closeMainWindow({ clearRootSearch: true }), checkAppInstalled()]);
-
-  let script = "";
-
-  const getOpenInProfileCommand = (profile: string) => {
-    let targetUrl = "about:blank";
-    if (url) {
-      targetUrl = url;
-    } else if (query) {
-      targetUrl = `https://perplexity.ai/search?q=${query}`;
-    }
-    
-    return `
-    set profile to quoted form of "${profile}"
-    set link to quoted form of "${targetUrl}"
-    do shell script "open -na 'Comet' --args --profile-directory=" & profile & " " & link
-  `;
-  };
-
-  switch (openTabInProfile) {
-    case SettingsProfileOpenBehaviour.Default:
-      script =
-        `
-        set winExists to false
-        tell application "Comet"
-            repeat with win in every window
-                if index of win is 1 then
-                    set winExists to true
-                    exit repeat
-                end if
-            end repeat
-
-            if not winExists then
-                make new window
-            else
-                activate
-            end if
-
-            tell window 1
-                set newTab to make new tab ` +
-        (url
-          ? `with properties {URL:"${url}"}`
-          : query
-          ? 'with properties {URL:"https://perplexity.ai/search?q=' + query + '"}'
-          : "") +
-        `
-            end tell
-        end tell
-        return true
-
-  `;
-      break;
-    case SettingsProfileOpenBehaviour.ProfileCurrent:
-      script = getOpenInProfileCommand(profileCurrent);
-      break;
-    case SettingsProfileOpenBehaviour.ProfileOriginal:
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      script = getOpenInProfileCommand(profileOriginal!);
-      break;
-  }
-
-  return await runAppleScript(script);
 }
 
 export async function setActiveTab(tab: Tab): Promise<void> {
@@ -170,17 +90,6 @@ export async function createNewWindow(): Promise<void> {
   await runAppleScript(`
     tell application "Comet"
       make new window
-      activate
-    end tell
-    return true
-  `);
-}
-
-export async function createNewWindowToWebsie(website: string): Promise<void> {
-  await runAppleScript(`
-    tell application "Comet"
-      make new window
-      open location "${website}"
       activate
     end tell
     return true

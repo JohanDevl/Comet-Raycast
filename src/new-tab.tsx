@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect, useMemo } from "react";
+import { useState, ReactNode, useMemo } from "react";
 import { getPreferenceValues, Icon, List } from "@raycast/api";
 import { useHistorySearch } from "./hooks/useHistorySearch";
 import { CometActions, CometListItems } from "./components";
@@ -7,7 +7,6 @@ import { useCachedState } from "@raycast/utils";
 import { CometProfile, HistoryEntry, Preferences, SearchResult } from "./interfaces";
 import CometProfileDropDown from "./components/CometProfileDropdown";
 import { COMET_PROFILE_KEY, COMET_PROFILES_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
-import { classifyInput, ClassifiedInput } from "./util/classify-input";
 
 type HistoryContainer = {
   profile: CometProfile;
@@ -55,28 +54,42 @@ export default function Command() {
         profile: currentProfile,
       },
     ];
-  }, [profiles, profile, currentProfileHistory?.data, currentProfileHistory?.isLoading, currentProfileHistory?.errorView]);
+  }, [
+    profiles,
+    profile,
+    currentProfileHistory?.data,
+    currentProfileHistory?.isLoading,
+    currentProfileHistory?.errorView,
+  ]);
 
   if (errorViewTab || profileHistories?.some((p) => p.errorView)) {
     const errorViewHistory = profileHistories?.find((p) => p.errorView)?.errorView;
     return errorViewTab || errorViewHistory;
   }
 
-  const classifiedInput: ClassifiedInput = classifyInput(searchText || "");
+  // Simple URL detection function
+  const isUrl = (text: string): boolean => {
+    // Check for common URL patterns
+    const urlPattern = /^(https?:\/\/|www\.|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i;
+    return urlPattern.test(text.trim());
+  };
+
   let actionTitle: string;
   let actions: ReactNode;
   let icon: Icon;
 
-  if (!classifiedInput.value) {
+  if (!searchText || searchText.trim() === "") {
     actionTitle = "Open Empty Tab";
     icon = Icon.Plus;
     actions = <CometActions.NewTab />;
-  } else if (classifiedInput.type === "url") {
-    actionTitle = `Open URL "${searchText}"`;
+  } else if (isUrl(searchText)) {
+    // Add protocol if missing
+    const url = searchText.startsWith("http") ? searchText : `https://${searchText}`;
+    actionTitle = `Open "${searchText}"`;
     icon = Icon.Globe;
-    actions = <CometActions.NewTab url={classifiedInput.value} />;
+    actions = <CometActions.NewTab url={url} />;
   } else {
-    actionTitle = `Search "${searchText}"`;
+    actionTitle = `Search "${searchText}" with Perplexity`;
     icon = Icon.MagnifyingGlass;
     actions = <CometActions.NewTab query={searchText} />;
   }

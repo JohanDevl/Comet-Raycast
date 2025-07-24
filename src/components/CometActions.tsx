@@ -1,9 +1,7 @@
 import { ReactElement } from "react";
-import { Action, ActionPanel, closeMainWindow, getPreferenceValues, Icon } from "@raycast/api";
-import { closeActiveTab, openNewTab, setActiveTab } from "../actions";
-import { Preferences, SettingsProfileOpenBehaviour, Tab } from "../interfaces";
-import { useCachedState } from "@raycast/utils";
-import { COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID } from "../constants";
+import { Action, ActionPanel, closeMainWindow, Icon } from "@raycast/api";
+import { closeActiveTab, createNewTab, createNewTabToWebsite, setActiveTab } from "../actions";
+import { Tab } from "../interfaces";
 
 export class CometActions {
   public static NewTab = NewTabActions;
@@ -12,9 +10,6 @@ export class CometActions {
 }
 
 function NewTabActions({ query, url }: { query?: string; url?: string }): ReactElement {
-  const { openTabInProfile } = getPreferenceValues<Preferences>();
-  const [profileCurrent] = useCachedState(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
-
   let actionTitle = "Open Empty Tab";
   if (query) {
     actionTitle = `Search "${query}"`;
@@ -22,9 +17,26 @@ function NewTabActions({ query, url }: { query?: string; url?: string }): ReactE
     actionTitle = `Open URL "${url}"`;
   }
 
+  const handleAction = async () => {
+    try {
+      // Use the same logic as the working AI tool
+      if (query) {
+        const perplexityUrl = `https://perplexity.ai/search?q=${encodeURIComponent(query)}`;
+        await createNewTabToWebsite(perplexityUrl);
+      } else if (url) {
+        await createNewTabToWebsite(url);
+      } else {
+        await createNewTab();
+      }
+    } catch (error) {
+      console.error("Error in NewTabActions:", error);
+      throw error;
+    }
+  };
+
   return (
     <ActionPanel title="New Tab">
-      <Action onAction={() => openNewTab({ url, query, profileCurrent, openTabInProfile })} title={actionTitle} />
+      <Action onAction={handleAction} title={actionTitle} />
     </ActionPanel>
   );
 }
@@ -50,45 +62,10 @@ function TabListItemActions({ tab, onTabClosed }: { tab: Tab; onTabClosed?: () =
   );
 }
 
-function HistoryItemActions({
-  title,
-  url,
-  profile: profileOriginal,
-}: {
-  title: string;
-  url: string;
-  profile: string;
-}): ReactElement {
-  const { openTabInProfile } = getPreferenceValues<Preferences>();
-  const [profileCurrent] = useCachedState(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
-
+function HistoryItemActions({ title, url }: { title: string; url: string }): ReactElement {
   return (
     <ActionPanel title={title}>
-      <Action onAction={() => openNewTab({ url, profileOriginal, profileCurrent, openTabInProfile })} title={"Open"} />
-      <ActionPanel.Section title={"Open in profile"}>
-        <Action
-          onAction={() =>
-            openNewTab({
-              url,
-              profileOriginal,
-              profileCurrent,
-              openTabInProfile: SettingsProfileOpenBehaviour.ProfileCurrent,
-            })
-          }
-          title={"Open in current profile"}
-        />
-        <Action
-          onAction={() =>
-            openNewTab({
-              url,
-              profileOriginal,
-              profileCurrent,
-              openTabInProfile: SettingsProfileOpenBehaviour.ProfileOriginal,
-            })
-          }
-          title={"Open in original profile"}
-        />
-      </ActionPanel.Section>
+      <Action onAction={() => createNewTabToWebsite(url)} title={"Open"} />
       <Action.CopyToClipboard title="Copy URL" content={url} shortcut={{ modifiers: ["cmd"], key: "c" }} />
     </ActionPanel>
   );
