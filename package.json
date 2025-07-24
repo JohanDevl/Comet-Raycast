@@ -5,15 +5,11 @@
   "description": "Search open tabs, bookmarks and history in Comet.",
   "icon": "comet-icon.png",
   "author": "xjo_nd",
-  "contributors": [
-    "xjo_nd"
-  ],
   "license": "MIT",
   "categories": [
     "Web",
     "Applications",
-    "Productivity",
-    "AI Extensions"
+    "Productivity"
   ],
   "commands": [
     {
