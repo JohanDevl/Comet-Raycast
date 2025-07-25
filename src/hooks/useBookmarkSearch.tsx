@@ -17,7 +17,7 @@ export function useBookmarkSearch(
     (profileId: string) => {
       setProfile(profileId);
     },
-    [profile]
+    []
   );
 
   useEffect(() => {
