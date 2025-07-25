@@ -175,14 +175,26 @@ export async function createNewTabWithProfile(profileId?: string, website?: stri
 
   // If profile exists, try to use it
   if (targetProfile) {
-    const targetUrl = website || "about:blank";
-    try {
-      await runAppleScript(`
-        do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}' '${targetUrl}'"
-      `);
-      return;
-    } catch (error) {
-      // Fall through to default behavior
+    if (website) {
+      // Open specific website in the profile
+      try {
+        await runAppleScript(`
+          do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}' '${website}'"
+        `);
+        return;
+      } catch (error) {
+        // Fall through to default behavior
+      }
+    } else {
+      // Open empty new tab in the profile
+      try {
+        await runAppleScript(`
+          do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}'"
+        `);
+        return;
+      } catch (error) {
+        // Fall through to default behavior
+      }
     }
   }
 
