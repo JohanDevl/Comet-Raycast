@@ -120,8 +120,8 @@ export async function createNewTabWithProfile(website?: string): Promise<void> {
   // Simple logic: always add tab to active window, create window if none exists
   try {
     // Escape quotes and special characters in the URL to prevent injection
-    const escapedWebsite = website ? website.replace(/"/g, '\\"').replace(/\\/g, '\\\\') : "";
-    
+    const escapedWebsite = website ? website.replace(/"/g, '\\"').replace(/\\/g, "\\\\") : "";
+
     await runAppleScript(`
       set winExists to false
       tell application "Comet"
