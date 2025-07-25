@@ -2,9 +2,6 @@ import { runAppleScript } from "run-applescript";
 import { LocalStorage } from "@raycast/api";
 import { Tab } from "../interfaces";
 import { NOT_INSTALLED_MESSAGE } from "../constants";
-import { readFileSync } from "fs";
-import { homedir } from "os";
-import { join } from "path";
 
 export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
   const faviconFormula = useOriginalFavicon
@@ -119,86 +116,9 @@ export async function createNewTabToWebsite(website: string): Promise<void> {
   `);
 }
 
-// Check if a profile exists in Comet's Local State
-function getExistingProfiles(): string[] {
-  try {
-    const localStatePath = join(homedir(), "Library/Application Support/Comet/Local State");
-    const localStateContent = readFileSync(localStatePath, "utf8");
-    const localState = JSON.parse(localStateContent);
-    return Object.keys(localState.profile?.info_cache || {});
-  } catch (error) {
-    return [];
-  }
-}
-
-// Get the profile name from directory name
-function getProfileName(profileDir: string): string | null {
-  try {
-    const localStatePath = join(homedir(), "Library/Application Support/Comet/Local State");
-    const localStateContent = readFileSync(localStatePath, "utf8");
-    const localState = JSON.parse(localStateContent);
-    const profileInfo = localState.profile?.info_cache?.[profileDir];
-    return profileInfo?.name || null;
-  } catch (error) {
-    return null;
-  }
-}
-
 export async function createNewTabWithProfile(profileId?: string, website?: string): Promise<void> {
-  if (!profileId) {
-    // No profile specified, use default behavior
-    if (website) {
-      await createNewTabToWebsite(website);
-    } else {
-      await createNewTab();
-    }
-    return;
-  }
-
-  // Check if requested profile exists, otherwise use current profile (no specific profile)
-  let targetProfile: string | null = null;
-
-  const existingProfiles = getExistingProfiles();
-
-  // Check if the requested profile exists (by directory name or display name)
-  const profileByDir = existingProfiles.find((dir) => dir === profileId);
-  const profileByName = existingProfiles.find((dir) => {
-    const name = getProfileName(dir);
-    return name?.toLowerCase() === profileId?.toLowerCase();
-  });
-
-  if (profileByDir) {
-    targetProfile = profileByDir;
-  } else if (profileByName) {
-    targetProfile = profileByName;
-  }
-
-  // If profile exists, try to use it
-  if (targetProfile) {
-    if (website) {
-      // Open specific website in the profile
-      try {
-        await runAppleScript(`
-          do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}' '${website}'"
-        `);
-        return;
-      } catch (error) {
-        // Fall through to default behavior
-      }
-    } else {
-      // Open empty new tab in the profile
-      try {
-        await runAppleScript(`
-          do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}'"
-        `);
-        return;
-      } catch (error) {
-        // Fall through to default behavior
-      }
-    }
-  }
-
-  // Fallback to default behavior if profile doesn't exist or fails
+  // For new tabs, we always use the current active window/profile
+  // Profile selection mainly affects new windows, not tabs within existing windows
   if (website) {
     await createNewTabToWebsite(website);
   } else {
