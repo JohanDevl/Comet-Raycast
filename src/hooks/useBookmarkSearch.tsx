@@ -22,7 +22,7 @@ export function useBookmarkSearch(
   useEffect(() => {
     setErrorView(undefined); // Reset error state on each new search
     setIsLoading(true);
-    
+
     getBookmarks(profile)
       .then((bookmarks) => {
         setData(

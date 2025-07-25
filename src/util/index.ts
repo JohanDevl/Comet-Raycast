@@ -5,7 +5,6 @@ import {
   defaultCometProfilePath,
   defaultCometStatePath,
   NO_BOOKMARKS_MESSAGE,
-  NOT_INSTALLED_MESSAGE,
 } from "../constants";
 import { getPreferenceValues } from "@raycast/api";
 import { Preferences } from "../interfaces";
@@ -81,11 +80,11 @@ export const getBookmarks = async (profile?: string): Promise<HistoryEntry[]> =>
     const bookmarksFilePath = getBookmarksFilePath(profile);
     const fileBuffer = await fs.promises.readFile(bookmarksFilePath, { encoding: "utf-8" });
     const bookmarks = extractBookmarks(JSON.parse(fileBuffer));
-    
+
     if (bookmarks.length === 0) {
       throw new Error(NO_BOOKMARKS_MESSAGE);
     }
-    
+
     return bookmarks;
   } catch (error) {
     // If it's a profile that doesn't exist or file that doesn't exist,
