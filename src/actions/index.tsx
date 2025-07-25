@@ -2,6 +2,9 @@ import { runAppleScript } from "run-applescript";
 import { LocalStorage } from "@raycast/api";
 import { Tab } from "../interfaces";
 import { NOT_INSTALLED_MESSAGE } from "../constants";
+import { readFileSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 
 export async function getOpenTabs(useOriginalFavicon: boolean): Promise<Tab[]> {
   const faviconFormula = useOriginalFavicon
@@ -116,9 +119,106 @@ export async function createNewTabToWebsite(website: string): Promise<void> {
   `);
 }
 
+// Check if a profile exists in Comet's Local State
+function getExistingProfiles(): string[] {
+  try {
+    const localStatePath = join(homedir(), "Library/Application Support/Comet/Local State");
+    const localStateContent = readFileSync(localStatePath, "utf8");
+    const localState = JSON.parse(localStateContent);
+    return Object.keys(localState.profile?.info_cache || {});
+  } catch (error) {
+    return [];
+  }
+}
+
+// Get the profile name from directory name
+function getProfileName(profileDir: string): string | null {
+  try {
+    const localStatePath = join(homedir(), "Library/Application Support/Comet/Local State");
+    const localStateContent = readFileSync(localStatePath, "utf8");
+    const localState = JSON.parse(localStateContent);
+    const profileInfo = localState.profile?.info_cache?.[profileDir];
+    return profileInfo?.name || null;
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function createNewTabWithProfile(profileId?: string, website?: string): Promise<void> {
-  // For new tabs, we always use the current active window/profile
-  // Profile selection mainly affects new windows, not tabs within existing windows
+  if (!profileId) {
+    // No profile specified, use default behavior (active window)
+    if (website) {
+      await createNewTabToWebsite(website);
+    } else {
+      await createNewTab();
+    }
+    return;
+  }
+
+  // Check if requested profile exists
+  const existingProfiles = getExistingProfiles();
+
+  let targetProfile: string | null = null;
+
+  // Check if the requested profile exists (by directory name or display name)
+  const profileByDir = existingProfiles.find((dir) => dir === profileId);
+  const profileByName = existingProfiles.find((dir) => {
+    const name = getProfileName(dir);
+    return name?.toLowerCase() === profileId?.toLowerCase();
+  });
+
+  if (profileByDir) {
+    targetProfile = profileByDir;
+  } else if (profileByName) {
+    targetProfile = profileByName;
+  }
+
+  // If profile exists, check if there are windows open first
+  if (targetProfile) {
+    try {
+      // Check if there are any Comet windows open
+      const windowCount = await runAppleScript(`
+        tell application "Comet"
+          return count of windows
+        end tell
+      `);
+
+      if (parseInt(windowCount) > 0) {
+        // There are windows open, create tab in the frontmost window (assume same profile)
+        if (website) {
+          await runAppleScript(`
+            tell application "Comet"
+              activate
+              make new tab at end of tabs of window 1 with properties {URL:"${website}"}
+            end tell
+          `);
+        } else {
+          await runAppleScript(`
+            tell application "Comet"
+              activate
+              make new tab at end of tabs of window 1
+            end tell
+          `);
+        }
+      } else {
+        // No windows open, create new window with specific profile
+        if (website) {
+          await runAppleScript(`
+            do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}' '${website}'"
+          `);
+        } else {
+          await runAppleScript(`
+            do shell script "open -na 'Comet' --args --profile-directory='${targetProfile}'"
+          `);
+        }
+      }
+      return;
+    } catch (error) {
+      // Fall through to default behavior
+    }
+  }
+
+  // Fallback to default behavior if profile doesn't exist or fails
   if (website) {
     await createNewTabToWebsite(website);
   } else {
