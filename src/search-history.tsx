@@ -26,7 +26,7 @@ export const groupEntriesByDate = (allEntries?: HistoryEntry[]): GroupedEntries 
 export default function Command(): ReactElement {
   const [searchText, setSearchText] = useState<string>();
   const [profile, setProfile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
-  const { data, isLoading, errorView, revalidate } = useHistorySearch(profile, searchText);
+  const { data, isLoading, errorView } = useHistorySearch(profile, searchText);
 
   const handleProfileChange = (profileId: string) => {
     setProfile(profileId);

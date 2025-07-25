@@ -10,10 +10,10 @@ type Input = {
 
 function normalizeUrl(url: string): string {
   // If URL already has protocol, return as is
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
-  
+
   // Add https:// protocol by default
   return `https://${url}`;
 }
@@ -22,7 +22,7 @@ export default async function (input: Input) {
   // If a query is provided, search with Perplexity
   if (input.query) {
     const perplexityUrl = `https://perplexity.ai/search?q=${encodeURIComponent(input.query)}`;
-    
+
     await runAppleScript(`
       tell application "Comet"
         make new window
@@ -36,7 +36,7 @@ export default async function (input: Input) {
   // If a website is provided, open it
   if (input.website) {
     const normalizedUrl = normalizeUrl(input.website);
-    
+
     await runAppleScript(`
       tell application "Comet"
         make new window

@@ -26,7 +26,7 @@ async function getCometHistory(query?: string, profile?: string) {
     const db = await loadDatabase(profile);
 
     let sqlQuery: string;
-    
+
     if (!query || query.trim() === "") {
       // If no query, return recent history
       sqlQuery = `
@@ -39,8 +39,10 @@ async function getCometHistory(query?: string, profile?: string) {
     } else {
       // Filter by search terms
       const searchTerms = query.trim().split(" ");
-      const whereConditions = searchTerms.map((term) => `(title LIKE '%${term}%' OR url LIKE '%${term}%')`).join(" AND ");
-      
+      const whereConditions = searchTerms
+        .map((term) => `(title LIKE '%${term}%' OR url LIKE '%${term}%')`)
+        .join(" AND ");
+
       sqlQuery = `
         SELECT id, url, title, last_visit_time as lastVisited
         FROM urls
@@ -84,6 +86,8 @@ export default async function (input: Input) {
   } catch (error) {
     // Get available profiles to help user
     const availableProfiles = getAvailableProfiles();
-    return `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}. Available profiles are: ${availableProfiles.join(', ')}. Try using one of these profile names.`;
+    return `Error: ${
+      error instanceof Error ? error.message : "Unknown error occurred"
+    }. Available profiles are: ${availableProfiles.join(", ")}. Try using one of these profile names.`;
   }
 }

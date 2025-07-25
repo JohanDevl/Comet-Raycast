@@ -28,7 +28,7 @@ async function loadCometProfiles(): Promise<CometProfile[]> {
   } catch (error) {
     // If Local State parsing fails, fall back to directory listing
   }
-  
+
   // Fallback: get available profiles from directory listing
   const availableProfiles = getAvailableProfiles();
   return availableProfiles.map((id) => ({

@@ -9,10 +9,10 @@ type Input = {
 
 function normalizeUrl(url: string): string {
   // If URL already has protocol, return as is
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
-  
+
   // Add https:// protocol by default
   return `https://${url}`;
 }
