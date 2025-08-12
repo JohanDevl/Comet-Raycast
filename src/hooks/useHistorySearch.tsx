@@ -62,42 +62,43 @@ const searchHistory = (profile: string, query?: string): SearchResult<HistoryEnt
   // Always call useSQL to respect hooks rules, but conditionally use its results
   const dbExists = fs.existsSync(dbPath);
   const { data, isLoading, permissionView, revalidate } = useSQL<HistoryEntry>(
-    dbExists ? dbPath : "", 
-    dbExists ? queries as unknown as string : "",
+    dbExists ? dbPath : "",
+    dbExists ? (queries as unknown as string) : "",
     {
-    onData() {
-      setRetryWaiting(false);
-      setRetryTimes(0);
-      setRetryTimer(null);
-    },
-    onError(error) {
-      // In rare cases, we encounter the SQLite error "database disk image is malformed (11)",
-      // and manual retries can resolve the issue.
-      // We implement an automatic retry here.
-      if (retryTimes < 1) {
-        setRetryWaiting(true);
-        setRetryTimes(retryTimes + 1);
-        const timer = setTimeout(() => {
-          revalidate();
-          clearTimeout(timer);
-        }, 1000);
-        setRetryTimer(timer);
-      } else {
+      onData() {
         setRetryWaiting(false);
         setRetryTimes(0);
         setRetryTimer(null);
-        // Default error handling copied from useSQL
-        if (api.environment.launchType !== api.LaunchType.Background) {
-          api.showToast({
-            style: api.Toast.Style.Failure,
-            title: "Failed to load history",
-            message: error.message,
-            primaryAction: handleErrorToastAction(error),
-          });
+      },
+      onError(error) {
+        // In rare cases, we encounter the SQLite error "database disk image is malformed (11)",
+        // and manual retries can resolve the issue.
+        // We implement an automatic retry here.
+        if (retryTimes < 1) {
+          setRetryWaiting(true);
+          setRetryTimes(retryTimes + 1);
+          const timer = setTimeout(() => {
+            revalidate();
+            clearTimeout(timer);
+          }, 1000);
+          setRetryTimer(timer);
+        } else {
+          setRetryWaiting(false);
+          setRetryTimes(0);
+          setRetryTimer(null);
+          // Default error handling copied from useSQL
+          if (api.environment.launchType !== api.LaunchType.Background) {
+            api.showToast({
+              style: api.Toast.Style.Failure,
+              title: "Failed to load history",
+              message: error.message,
+              primaryAction: handleErrorToastAction(error),
+            });
+          }
         }
-      }
-    },
-  });
+      },
+    }
+  );
 
   // Handle conditions after hooks are called
   if (!installationChecked) {

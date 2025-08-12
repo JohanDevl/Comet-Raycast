@@ -28,12 +28,12 @@ function orderByLastVisited(targetId: string, container?: HistoryContainer[]): H
 export default function Command() {
   // All simple hooks first
   const { useOriginalFavicon } = getPreferenceValues<Preferences>();
-  
+
   // Then state hooks
   const [searchText, setSearchText] = useState("");
   const [profiles] = useCachedState<CometProfile[]>(COMET_PROFILES_KEY, []);
   const [profile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
-  
+
   // Finally custom hooks
   const currentProfileHistory = useHistorySearch(profile, searchText);
   const { data: dataTab, isLoading: isLoadingTab, errorView: errorViewTab } = useTabSearch();
@@ -54,12 +54,15 @@ export default function Command() {
         data: currentProfileHistory.data,
         isLoading: currentProfileHistory.isLoading,
         errorView: currentProfileHistory.errorView,
-        revalidate: currentProfileHistory.revalidate || (() => {}),
+        revalidate:
+          currentProfileHistory.revalidate ||
+          (() => {
+            /* no-op */
+          }),
         profile: currentProfile,
       },
     ];
   }, [profiles, profile, currentProfileHistory]);
-
 
   // Simple URL detection function
   const isUrl = (text: string): boolean => {
