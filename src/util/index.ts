@@ -216,3 +216,77 @@ export function showCometNotOpenToast() {
     title: "You'll need to have Comet open to use this extension",
   });
 }
+
+export const getHistory = async (profile?: string, query?: string): Promise<HistoryEntry[]> => {
+  try {
+    const dbPath = getHistoryDbPath(profile);
+    
+    if (!fs.existsSync(dbPath)) {
+      return [];
+    }
+
+    // Use the same query logic as useHistorySearch but with direct SQLite access
+    const terms = query ? query.trim().split(" ") : [""];
+    const whereClauses = terms.length === 1 && terms[0] === "" 
+      ? "1=1" 
+      : terms.map((t) => `(urls.title LIKE '%${t}%' OR urls.url LIKE '%${t}%')`).join(" AND ");
+    
+    const sqlQuery = `SELECT id,
+            url,
+            title,
+            datetime(last_visit_time /
+                     1000000 +
+                     (strftime('%s', '1601-01-01')),
+                     'unixepoch',
+                     'localtime') as lastVisited
+     FROM urls
+     WHERE ${whereClauses}
+     AND last_visit_time > 0
+     ORDER BY last_visit_time DESC LIMIT 30;`;
+
+    // Try to read using file-based approach to avoid locks
+    const { execSync } = require('child_process');
+    
+    try {
+      // Create temporary copy to avoid database locks
+      const tempDbPath = `${dbPath}.tmp.${Date.now()}`;
+      execSync(`cp "${dbPath}" "${tempDbPath}"`, { timeout: 5000 });
+      
+      const output = execSync(`sqlite3 -separator "|" "${tempDbPath}" "${sqlQuery.replace(/"/g, '""')}"`, {
+        encoding: 'utf8',
+        timeout: 10000
+      });
+      
+      // Clean up
+      fs.unlinkSync(tempDbPath);
+      
+      if (!output || output.trim() === '') {
+        return [];
+      }
+      
+      // Parse results
+      const lines = output.trim().split('\n');
+      return lines
+        .filter(line => line.trim() !== '')
+        .map(line => {
+          const parts = line.split('|');
+          if (parts.length >= 4) {
+            return {
+              id: parts[0],
+              url: parts[1],
+              title: parts[2],
+              lastVisited: new Date(parts[3])
+            };
+          }
+          return null;
+        })
+        .filter(Boolean) as HistoryEntry[];
+        
+    } catch (error) {
+      // If copy approach fails, return empty array
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
