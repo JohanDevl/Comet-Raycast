@@ -4,7 +4,7 @@ import { useSQL } from "@raycast/utils";
 import { handleErrorToastAction } from "@raycast/utils/dist/handle-error-toast-action";
 import { useState, useEffect } from "react";
 import { HistoryEntry, SearchResult } from "../interfaces";
-import { getHistoryDbPath } from "../util";
+import { getHistoryDbPath, checkCometInstallation } from "../util";
 import { NotInstalledError } from "../components";
 
 const whereClauses = (tableTitle: string, terms: string[]) => {
@@ -34,6 +34,28 @@ const searchHistory = (profile: string, query?: string): SearchResult<HistoryEnt
   const terms = query ? query.trim().split(" ") : [""];
   const queries = getHistoryQuery("urls", "last_visit_time", terms);
   const dbPath = getHistoryDbPath(profile);
+  
+  const [installationChecked, setInstallationChecked] = useState(false);
+  const [shouldShowData, setShouldShowData] = useState(true);
+
+  useEffect(() => {
+    const checkInstallation = async () => {
+      const isInstalled = await checkCometInstallation();
+      if (!isInstalled) {
+        setShouldShowData(false);
+      }
+      setInstallationChecked(true);
+    };
+    checkInstallation();
+  }, []);
+
+  if (!installationChecked) {
+    return { isLoading: true, data: [], errorView: undefined };
+  }
+  
+  if (!shouldShowData) {
+    return { isLoading: false, data: [], errorView: undefined };
+  }
 
   if (!fs.existsSync(dbPath)) {
     return { isLoading: false, data: [], errorView: <NotInstalledError /> };
