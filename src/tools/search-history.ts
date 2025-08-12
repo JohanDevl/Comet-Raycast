@@ -10,7 +10,7 @@ type Input = {
 
 export default async function (input: Input): Promise<HistoryEntry[] | string> {
   try {
-    // Resolve profile name (e.g., "Johan" -> "Default")  
+    // Resolve profile name (e.g., "Johan" -> "Default")
     const resolvedProfile = resolveProfileName(input.profile);
     const history = await getHistory(resolvedProfile, input.query);
 
