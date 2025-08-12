@@ -262,7 +262,7 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.90.0",
+    "@raycast/api": "^1.102.3",
     "@raycast/utils": "^1.18.1",
     "run-applescript": "^6.0.0"
   },
