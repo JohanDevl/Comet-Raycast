@@ -218,6 +218,24 @@ export function showCometNotOpenToast() {
   });
 }
 
+const whereClauses = (tableTitle: string, terms: string[]) => {
+  return terms.map((t) => `(${tableTitle}.title LIKE '%${t}%' OR ${tableTitle}.url LIKE '%${t}%')`).join(" AND ");
+};
+
+export const getHistoryQuery = (table: string, date_field: string, terms: string[]) =>
+  `SELECT id,
+            url,
+            title,
+            datetime(${date_field} /
+                     1000000 +
+                     (strftime('%s', '1601-01-01')),
+                     'unixepoch',
+                     'localtime') as lastVisited
+     FROM ${table}
+     WHERE ${whereClauses(table, terms)}
+     AND last_visit_time > 0
+     ORDER BY ${date_field} DESC LIMIT 30;`;
+
 export const getHistory = async (profile?: string, query?: string): Promise<HistoryEntry[]> => {
   try {
     const dbPath = getHistoryDbPath(profile);
@@ -226,27 +244,9 @@ export const getHistory = async (profile?: string, query?: string): Promise<Hist
       return [];
     }
 
-    // Use the same query logic as useHistorySearch but with direct SQLite access
+    // Use the same query logic as useHistorySearch
     const terms = query ? query.trim().split(" ") : [""];
-    const whereClauses =
-      terms.length === 1 && terms[0] === ""
-        ? "1=1"
-        : terms.map((t) => `(urls.title LIKE '%${t}%' OR urls.url LIKE '%${t}%')`).join(" AND ");
-
-    const sqlQuery = `SELECT id,
-            url,
-            title,
-            datetime(last_visit_time /
-                     1000000 +
-                     (strftime('%s', '1601-01-01')),
-                     'unixepoch',
-                     'localtime') as lastVisited
-     FROM urls
-     WHERE ${whereClauses}
-     AND last_visit_time > 0
-     ORDER BY last_visit_time DESC LIMIT 30;`;
-
-    // Try to read using file-based approach to avoid locks
+    const sqlQuery = getHistoryQuery("urls", "last_visit_time", terms);
 
     try {
       // Create temporary copy to avoid database locks
