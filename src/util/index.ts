@@ -151,7 +151,6 @@ function extractBookmarkFromBookmarkDirectory(bookmarkDirectory: BookmarkDirecto
       id: bookmarkDirectory.id,
       url: bookmarkDirectory.url,
       title: bookmarkDirectory.name,
-      lastVisited: new Date(bookmarkDirectory.date_added),
     });
   }
   return bookmarks;
@@ -225,12 +224,7 @@ const whereClauses = (tableTitle: string, terms: string[]) => {
 export const getHistoryQuery = (table: string, date_field: string, terms: string[]) =>
   `SELECT id,
             url,
-            title,
-            datetime(${date_field} /
-                     1000000 +
-                     (strftime('%s', '1601-01-01')),
-                     'unixepoch',
-                     'localtime') as lastVisited
+            title
      FROM ${table}
      WHERE ${whereClauses(table, terms)}
      AND last_visit_time > 0
@@ -271,12 +265,11 @@ export const getHistory = async (profile?: string, query?: string): Promise<Hist
         .filter((line: string) => line.trim() !== "")
         .map((line: string) => {
           const parts = line.split("|");
-          if (parts.length >= 4) {
+          if (parts.length >= 3) {
             return {
               id: parts[0],
               url: parts[1],
               title: parts[2],
-              lastVisited: new Date(parts[3]),
             };
           }
           return null;
