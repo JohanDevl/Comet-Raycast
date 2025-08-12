@@ -18,42 +18,47 @@ import { checkCometInstallation } from "../util";
  * search "example" succeeds
  * search "asdf" fails
  */
-export function useTabSearch(query = ""): SearchResult<Tab> & { data: NonNullable<Tab[]> } {
+export function useTabSearch(query = ""): SearchResult<Tab> & { data: NonNullable<Tab[]>; revalidate?: () => void } {
   const { useOriginalFavicon } = getPreferenceValues<Preferences>();
   const [data, setData] = useState<Tab[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorView, setErrorView] = useState<ReactNode | undefined>();
   const queryParts = query.toLowerCase().split(/\s+/);
 
-  useEffect(() => {
-    const loadTabs = async () => {
-      try {
-        const isInstalled = await checkCometInstallation();
-        if (!isInstalled) {
-          setIsLoading(false);
-          return;
-        }
-
-        const tabs = await getOpenTabs(useOriginalFavicon);
-        const filteredTabs = tabs
-          .map((tab): [Tab, string] => [tab, `${tab.title.toLowerCase()} ${tab.urlWithoutScheme().toLowerCase()}`])
-          .filter(([, searchable]) => queryParts.reduce((isMatch, part) => isMatch && searchable.includes(part), true))
-          .map(([tab]) => tab);
-          
-        setData(filteredTabs);
+  const loadTabs = async () => {
+    try {
+      const isInstalled = await checkCometInstallation();
+      if (!isInstalled) {
         setIsLoading(false);
-      } catch (e) {
-        if (e instanceof Error && e.message === NOT_INSTALLED_MESSAGE) {
-          setErrorView(<NotInstalledError />);
-        } else {
-          setErrorView(<UnknownError />);
-        }
-        setIsLoading(false);
+        return;
       }
-    };
 
+      const tabs = await getOpenTabs(useOriginalFavicon);
+      const filteredTabs = tabs
+        .map((tab): [Tab, string] => [tab, `${tab.title.toLowerCase()} ${tab.urlWithoutScheme().toLowerCase()}`])
+        .filter(([, searchable]) => queryParts.reduce((isMatch, part) => isMatch && searchable.includes(part), true))
+        .map(([tab]) => tab);
+
+      setData(filteredTabs);
+      setIsLoading(false);
+    } catch (e) {
+      if (e instanceof Error && e.message === NOT_INSTALLED_MESSAGE) {
+        setErrorView(<NotInstalledError />);
+      } else {
+        setErrorView(<UnknownError />);
+      }
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadTabs();
   }, [query]);
 
-  return { data, isLoading, errorView };
+  const revalidate = () => {
+    setIsLoading(true);
+    loadTabs();
+  };
+
+  return { data, isLoading, errorView, revalidate };
 }

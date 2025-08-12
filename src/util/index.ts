@@ -186,8 +186,6 @@ export const getBookmarks = async (profile?: string): Promise<HistoryEntry[]> =>
 
 async function isCometInstalled() {
   const applications = await getApplications();
-  // Pour tester: décommente la ligne suivante  
-  return false;
   return applications.some(({ bundleId }) => bundleId === "ai.perplexity.comet");
 }
 

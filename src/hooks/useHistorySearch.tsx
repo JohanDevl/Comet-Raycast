@@ -34,9 +34,13 @@ const searchHistory = (profile: string, query?: string): SearchResult<HistoryEnt
   const terms = query ? query.trim().split(" ") : [""];
   const queries = getHistoryQuery("urls", "last_visit_time", terms);
   const dbPath = getHistoryDbPath(profile);
-  
+
+  // All hooks must be called at the top level
   const [installationChecked, setInstallationChecked] = useState(false);
   const [shouldShowData, setShouldShowData] = useState(true);
+  const [retryWaiting, setRetryWaiting] = useState(false);
+  const [retryTimes, setRetryTimes] = useState(0);
+  const [retryTimer, setRetryTimer] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const checkInstallation = async () => {
@@ -49,28 +53,18 @@ const searchHistory = (profile: string, query?: string): SearchResult<HistoryEnt
     checkInstallation();
   }, []);
 
-  if (!installationChecked) {
-    return { isLoading: true, data: [], errorView: undefined };
-  }
-  
-  if (!shouldShowData) {
-    return { isLoading: false, data: [], errorView: undefined };
-  }
-
-  if (!fs.existsSync(dbPath)) {
-    return { isLoading: false, data: [], errorView: <NotInstalledError /> };
-  }
-
-  const [retryWaiting, setRetryWaiting] = useState(false);
-  const [retryTimes, setRetryTimes] = useState(0);
-  const [retryTimer, setRetryTimer] = useState<NodeJS.Timeout | null>(null);
   useEffect(() => {
     return () => {
       retryTimer && clearTimeout(retryTimer);
     };
   }, [retryTimer]);
 
-  const { data, isLoading, permissionView, revalidate } = useSQL<HistoryEntry>(dbPath, queries as unknown as string, {
+  // Always call useSQL to respect hooks rules, but conditionally use its results
+  const dbExists = fs.existsSync(dbPath);
+  const { data, isLoading, permissionView, revalidate } = useSQL<HistoryEntry>(
+    dbExists ? dbPath : "", 
+    dbExists ? queries as unknown as string : "",
+    {
     onData() {
       setRetryWaiting(false);
       setRetryTimes(0);
@@ -104,6 +98,20 @@ const searchHistory = (profile: string, query?: string): SearchResult<HistoryEnt
       }
     },
   });
+
+  // Handle conditions after hooks are called
+  if (!installationChecked) {
+    return { isLoading: true, data: [], errorView: undefined, revalidate };
+  }
+
+  if (!shouldShowData) {
+    return { isLoading: false, data: [], errorView: undefined, revalidate };
+  }
+
+  if (!dbExists) {
+    return { isLoading: false, data: [], errorView: <NotInstalledError />, revalidate };
+  }
+
   return {
     data,
     isLoading: isLoading || retryWaiting,

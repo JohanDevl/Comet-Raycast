@@ -23,7 +23,7 @@ function NewTabActions({ query, url }: { query?: string; url?: string }): ReactE
     if (!isInstalled) {
       return;
     }
-    
+
     try {
       if (query) {
         const perplexityUrl = `https://perplexity.ai/search?q=${encodeURIComponent(query)}`;
@@ -90,7 +90,7 @@ function GoToTab(props: { tab: Tab }) {
     if (!isInstalled) {
       return;
     }
-    
+
     try {
       await setActiveTab(props.tab);
       await closeMainWindow();
@@ -112,7 +112,7 @@ function CloseTab(props: { tab: Tab; onTabClosed?: () => void }) {
     if (!isInstalled) {
       return;
     }
-    
+
     await closeActiveTab(props.tab);
     await closeMainWindow();
     props.onTabClosed?.();
