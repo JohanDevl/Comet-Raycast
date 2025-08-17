@@ -205,7 +205,7 @@ async function isCometInstalled() {
 
 export async function checkProfileConfiguration() {
   const { profilePath } = getPreferenceValues<Preferences>();
-  
+
   // Only check if custom profilePath is set
   if (profilePath && !checkProfilePathExists()) {
     const options: Toast.Options = {
@@ -224,7 +224,7 @@ export async function checkProfileConfiguration() {
     await showToast(options);
     return false;
   }
-  
+
   // If no custom path or path exists, everything is OK
   return true;
 }

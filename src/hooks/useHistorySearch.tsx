@@ -5,7 +5,8 @@ import { useSQL } from "@raycast/utils";
 import { handleErrorToastAction } from "@raycast/utils/dist/handle-error-toast-action";
 import { useState, useEffect, useMemo } from "react";
 import { HistoryEntry, SearchResult } from "../interfaces";
-import { getHistoryDbPath, checkCometInstallation, getHistoryQuery } from "../util";
+import { getHistoryDbPath, getHistoryQuery } from "../util";
+import { useCometInstallation } from "./useCometInstallation";
 
 // Create empty SQLite database once at module load to avoid hook violations
 const EMPTY_DB_PATH = "/tmp/comet-raycast-empty.db";
@@ -13,7 +14,9 @@ const EMPTY_DB_PATH = "/tmp/comet-raycast-empty.db";
 const ensureEmptyDbExists = () => {
   if (!fs.existsSync(EMPTY_DB_PATH)) {
     try {
-      execSync(`sqlite3 "${EMPTY_DB_PATH}" "CREATE TABLE IF NOT EXISTS urls (id TEXT, url TEXT, title TEXT, last_visit_time INTEGER);"`);
+      execSync(
+        `sqlite3 "${EMPTY_DB_PATH}" "CREATE TABLE IF NOT EXISTS urls (id TEXT, url TEXT, title TEXT, last_visit_time INTEGER);"`
+      );
     } catch (error) {
       // Fallback: create empty file
       fs.writeFileSync(EMPTY_DB_PATH, "");
@@ -30,22 +33,10 @@ const searchHistory = (profile: string, query?: string, enabled = true): SearchR
   const dbPath = getHistoryDbPath(profile);
 
   // All hooks must be called at the top level
-  const [installationChecked, setInstallationChecked] = useState(false);
-  const [shouldShowData, setShouldShowData] = useState(true);
+  const { isInstalled, isChecking } = useCometInstallation();
   const [retryWaiting, setRetryWaiting] = useState(false);
   const [retryTimes, setRetryTimes] = useState(0);
   const [retryTimer, setRetryTimer] = useState<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const checkInstallation = async () => {
-      const isInstalled = await checkCometInstallation();
-      if (!isInstalled) {
-        setShouldShowData(false);
-      }
-      setInstallationChecked(true);
-    };
-    checkInstallation();
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -108,11 +99,11 @@ const searchHistory = (profile: string, query?: string, enabled = true): SearchR
     };
   }
 
-  if (!installationChecked) {
+  if (isChecking) {
     return { isLoading: true, data: [], errorView: undefined, revalidate };
   }
 
-  if (!shouldShowData) {
+  if (!isInstalled) {
     return { isLoading: false, data: [], errorView: undefined, revalidate };
   }
 

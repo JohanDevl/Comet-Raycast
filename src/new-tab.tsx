@@ -6,7 +6,7 @@ import { useTabSearch } from "./hooks/useTabSearch";
 import { useCachedState } from "@raycast/utils";
 import { CometProfile, HistoryEntry, Preferences, SearchResult } from "./interfaces";
 import CometProfileDropDown from "./components/CometProfileDropdown";
-import { COMET_PROFILE_KEY, COMET_PROFILES_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
+import { COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
 import { checkProfileConfiguration } from "./util";
 
 type HistoryContainer = {
@@ -33,7 +33,7 @@ export default function Command() {
   // Then state hooks
   const [profileValid, setProfileValid] = useState<boolean | null>(null);
   const [searchText, setSearchText] = useState("");
-  const [profiles] = useCachedState<CometProfile[]>(COMET_PROFILES_KEY, []);
+  const [profiles] = useCachedState<CometProfile[]>("COMET_PROFILES", []);
   const [profile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
 
   useEffect(() => {
