@@ -33,7 +33,8 @@ export default function Command(): ReactElement | null {
   }, []);
 
   // Call hooks BEFORE any conditional returns
-  const { data, isLoading, errorView } = useHistorySearch(profile, searchText, profileValid === true);
+  // Always call with enabled=true to maintain hook consistency, filter results later
+  const { data, isLoading, errorView } = useHistorySearch(profile, searchText, true);
 
   // If profile check is still pending, don't render anything
   if (profileValid === null) {

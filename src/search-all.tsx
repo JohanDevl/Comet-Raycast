@@ -28,11 +28,12 @@ export default function Command() {
   // Call ALL hooks BEFORE any conditional returns
   const { data: tabData, isLoading: isLoadingTab } = useTabSearch(searchText);
 
+  // Always call with enabled=true to maintain hook consistency, filter results later
   const {
     data: historyData = [],
     isLoading: isLoadingHistory,
     revalidate: revalidateHistory,
-  } = useHistorySearch(profile, searchText, profileValid === true);
+  } = useHistorySearch(profile, searchText, true);
 
   const {
     data: bookmarkData = [],

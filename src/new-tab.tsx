@@ -45,20 +45,12 @@ export default function Command() {
   }, []);
 
   // Finally custom hooks - MUST be called before any conditional returns
-  const currentProfileHistory = useHistorySearch(profile, searchText, profileValid === true);
+  // Always call with enabled=true to maintain hook consistency, filter results later
+  const currentProfileHistory = useHistorySearch(profile, searchText, true);
   const { data: dataTab, isLoading: isLoadingTab, errorView: errorViewTab } = useTabSearch();
 
-  // If profile check is still pending, don't render anything
-  if (profileValid === null) {
-    return null;
-  }
-
-  // If profile is invalid, don't render anything (toast already shown)
-  if (!profileValid) {
-    return null;
-  }
-
   // Use useMemo to calculate profileHistories to avoid infinite re-renders
+  // This MUST be called before any conditional returns
   const profileHistories = useMemo<HistoryContainer[]>(() => {
     if (!profiles || !profile || !currentProfileHistory) {
       return [];
@@ -83,6 +75,16 @@ export default function Command() {
       },
     ];
   }, [profiles, profile, currentProfileHistory]);
+
+  // If profile check is still pending, don't render anything
+  if (profileValid === null) {
+    return null;
+  }
+
+  // If profile is invalid, don't render anything (toast already shown)
+  if (!profileValid) {
+    return null;
+  }
 
   // Simple URL detection function
   const isUrl = (text: string): boolean => {
