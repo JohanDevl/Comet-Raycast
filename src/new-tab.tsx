@@ -1,4 +1,4 @@
-import { useState, ReactNode, useMemo } from "react";
+import { useState, ReactNode, useMemo, useEffect } from "react";
 import { getPreferenceValues, Icon, List } from "@raycast/api";
 import { useHistorySearch } from "./hooks/useHistorySearch";
 import { CometActions, CometListItems } from "./components";
@@ -7,6 +7,7 @@ import { useCachedState } from "@raycast/utils";
 import { CometProfile, HistoryEntry, Preferences, SearchResult } from "./interfaces";
 import CometProfileDropDown from "./components/CometProfileDropdown";
 import { COMET_PROFILE_KEY, COMET_PROFILES_KEY, DEFAULT_COMET_PROFILE_ID } from "./constants";
+import { checkProfileConfiguration } from "./util";
 
 type HistoryContainer = {
   profile: CometProfile;
@@ -30,13 +31,32 @@ export default function Command() {
   const { useOriginalFavicon } = getPreferenceValues<Preferences>();
 
   // Then state hooks
+  const [profileValid, setProfileValid] = useState<boolean | null>(null);
   const [searchText, setSearchText] = useState("");
   const [profiles] = useCachedState<CometProfile[]>(COMET_PROFILES_KEY, []);
   const [profile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
 
-  // Finally custom hooks
-  const currentProfileHistory = useHistorySearch(profile, searchText);
+  useEffect(() => {
+    const checkProfile = async () => {
+      const isValid = await checkProfileConfiguration();
+      setProfileValid(isValid);
+    };
+    checkProfile();
+  }, []);
+
+  // Finally custom hooks - MUST be called before any conditional returns
+  const currentProfileHistory = useHistorySearch(profile, searchText, profileValid === true);
   const { data: dataTab, isLoading: isLoadingTab, errorView: errorViewTab } = useTabSearch();
+
+  // If profile check is still pending, don't render anything
+  if (profileValid === null) {
+    return null;
+  }
+
+  // If profile is invalid, don't render anything (toast already shown)
+  if (!profileValid) {
+    return null;
+  }
 
   // Use useMemo to calculate profileHistories to avoid infinite re-renders
   const profileHistories = useMemo<HistoryContainer[]>(() => {

@@ -31,6 +31,9 @@ async function loadCometProfiles(): Promise<CometProfile[]> {
 
   // Fallback: get available profiles from directory listing
   const availableProfiles = getAvailableProfiles();
+  if (availableProfiles.length === 0) {
+    return [];
+  }
   return availableProfiles.map((id) => ({
     name: id === "Default" ? "Default" : `Profile ${id.split(" ")[1] || id}`,
     id: id,
@@ -39,25 +42,23 @@ async function loadCometProfiles(): Promise<CometProfile[]> {
 
 export default function CometProfileDropDown({ onProfileSelected }: Props) {
   const [selectedProfile, setSelectedProfile] = useCachedState<string>(COMET_PROFILE_KEY, DEFAULT_COMET_PROFILE_ID);
-  const [profiles, setProfiles] = useCachedState<CometProfile[]>(COMET_PROFILES_KEY, [
-    { name: "Person 1", id: DEFAULT_COMET_PROFILE_ID },
-  ]);
+  const [profiles, setProfiles] = useCachedState<CometProfile[]>(COMET_PROFILES_KEY, []);
   const { data: loadedProfiles } = useCachedPromise(loadCometProfiles);
 
   useEffect(() => {
-    if (loadedProfiles) {
+    if (loadedProfiles !== undefined) {
       setProfiles(loadedProfiles);
-      if (!selectedProfile) {
-        setSelectedProfile(profiles[0].id);
+      if (loadedProfiles.length > 0 && !selectedProfile) {
+        setSelectedProfile(loadedProfiles[0].id);
       }
     }
   }, [loadedProfiles]);
 
   useEffect(() => {
-    if (selectedProfile) {
+    if (selectedProfile && profiles.length > 0) {
       onProfileSelected?.(selectedProfile);
     }
-  }, [selectedProfile]);
+  }, [selectedProfile, profiles]);
 
   if (!profiles || profiles.length === 0) {
     return null;
