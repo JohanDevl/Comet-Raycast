@@ -76,8 +76,13 @@ export const getAvailableProfiles = (): string[] => {
     // Add all Profile X directories
     items
       .filter((item) => {
-        const itemPath = path.join(profilesDir, item);
-        return fs.statSync(itemPath).isDirectory() && (item.startsWith("Profile ") || item === "Default");
+        try {
+          const itemPath = path.join(profilesDir, item);
+          return fs.statSync(itemPath).isDirectory() && (item.startsWith("Profile ") || item === "Default");
+        } catch (error) {
+          // Skip items that can't be stat'd (like broken symlinks)
+          return false;
+        }
       })
       .forEach((item) => {
         if (item !== "Default") {
@@ -199,7 +204,10 @@ async function isCometInstalled() {
 }
 
 export async function checkProfileConfiguration() {
-  if (!checkProfilePathExists()) {
+  const { profilePath } = getPreferenceValues<Preferences>();
+  
+  // Only check if custom profilePath is set
+  if (profilePath && !checkProfilePathExists()) {
     const options: Toast.Options = {
       style: Toast.Style.Failure,
       title: "Comet profile directory not found.",
@@ -216,6 +224,8 @@ export async function checkProfileConfiguration() {
     await showToast(options);
     return false;
   }
+  
+  // If no custom path or path exists, everything is OK
   return true;
 }
 
