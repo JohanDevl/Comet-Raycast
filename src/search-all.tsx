@@ -97,7 +97,9 @@ export default function Command() {
         {limitedBookmarkData.length === 0 ? (
           <List.Item title="No bookmarks found" key={"empty bookmark list item"} />
         ) : (
-          limitedBookmarkData.map((e) => <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="Bookmark" />)
+          limitedBookmarkData.map((e) => (
+            <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="Bookmark" />
+          ))
         )}
       </List.Section>
     </List>
