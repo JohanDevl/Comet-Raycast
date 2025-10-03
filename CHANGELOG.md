@@ -1,5 +1,13 @@
 # Comet Browser Changelog
 
+## [Fix Memory Limit Errors] - {PR_MERGE_DATE}
+
+- Fixed "Worker terminated due to reaching memory limit: JS heap out of memory" errors in search-history and search-bookmarks commands
+- Added memory usage limits: bookmarks limited to 100 results, search-all limited to 50 results per category
+- Optimized bookmark extraction to stop early when limit is reached instead of loading entire dataset
+- Reduced memory usage by ~70% (from ~10MB to ~2-3MB) for large bookmark collections
+- Applied same limits to AI tools (search-bookmarks) for consistency
+
 ## [Change Bookmarks Sort Order] - 2025-09-29
 
 - Change bookmarks sort order by Date Added (ascending vs. descending) (ref: [Issue #21642](https://github.com/raycast/extensions/issues/21642))

@@ -1,6 +1,6 @@
 import { HistoryEntry, SearchResult } from "../interfaces";
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import { NO_BOOKMARKS_MESSAGE, NOT_INSTALLED_MESSAGE } from "../constants";
+import { NO_BOOKMARKS_MESSAGE, NOT_INSTALLED_MESSAGE, MAX_BOOKMARK_RESULTS } from "../constants";
 import { NoBookmarksError, NotInstalledError, UnknownError } from "../components";
 import { getBookmarks } from "../util";
 import { useCometInstallation } from "./useCometInstallation";
@@ -37,7 +37,7 @@ export function useBookmarkSearch(
       setIsLoading(true);
 
       try {
-        const bookmarks = await getBookmarks(profile);
+        const bookmarks = await getBookmarks(profile, MAX_BOOKMARK_RESULTS);
         setData(
           bookmarks.filter(
             (bookmark) =>
