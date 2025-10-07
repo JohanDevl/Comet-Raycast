@@ -40,6 +40,28 @@ export default function Command() {
     revalidate: revalidateBookmark,
   } = useBookmarkSearch(searchText);
 
+  // ALL hooks must be called before any conditional returns
+  const revalidate = (profile: string) => {
+    revalidateHistory?.(profile);
+    revalidateBookmark(profile);
+  };
+
+  // Limit results to prevent memory issues with optimized memoization
+  const limitedTabData = useMemo(() => tabData.slice(0, MAX_SEARCH_ALL_RESULTS), [tabData]);
+  const limitedHistoryData = useMemo(() => historyData.slice(0, MAX_SEARCH_ALL_RESULTS), [historyData]);
+  const limitedBookmarkData = useMemo(() => bookmarkData.slice(0, MAX_SEARCH_ALL_RESULTS), [bookmarkData]);
+
+  // Memoize grouped history data to avoid recalculating on every render
+  // Add dependency on length to avoid recomputing when data changes but length remains the same
+  const groupedHistoryData = useMemo(() => {
+    return limitedHistoryData.length === 0
+      ? null
+      : Array.from(groupEntriesByDate(limitedHistoryData).entries(), ([groupDate, group]) => ({
+          groupDate,
+          group,
+        }));
+  }, [limitedHistoryData, limitedHistoryData.length]);
+
   // If profile check is still pending, don't render anything
   if (profileValid === null) {
     return null;
@@ -50,16 +72,6 @@ export default function Command() {
     return null;
   }
 
-  const revalidate = (profile: string) => {
-    revalidateHistory?.(profile);
-    revalidateBookmark(profile);
-  };
-
-  // Limit results to prevent memory issues
-  const limitedTabData = useMemo(() => tabData.slice(0, MAX_SEARCH_ALL_RESULTS), [tabData]);
-  const limitedHistoryData = useMemo(() => historyData.slice(0, MAX_SEARCH_ALL_RESULTS), [historyData]);
-  const limitedBookmarkData = useMemo(() => bookmarkData.slice(0, MAX_SEARCH_ALL_RESULTS), [bookmarkData]);
-
   return (
     <List
       // loading appears not to matter, but leaving it case it handles a case that I'm unaware of
@@ -69,7 +81,9 @@ export default function Command() {
       searchBarAccessory={<CometProfileDropDown onProfileSelected={revalidate} />}
     >
       {/* use Item for titles instead of sections for explicit feedback that the list is empty */}
-      <List.Section title="Tabs">
+      <List.Section
+        title={`Tabs${tabData.length > MAX_SEARCH_ALL_RESULTS ? ` (showing ${MAX_SEARCH_ALL_RESULTS} of ${tabData.length})` : ""}`}
+      >
         {limitedTabData.length === 0 ? (
           <List.Item title="No tabs found" key={"empty tab list item"} />
         ) : (
@@ -84,8 +98,11 @@ export default function Command() {
           <List.Item title="No history found" />
         </List.Section>
       ) : (
-        Array.from(groupEntriesByDate(limitedHistoryData).entries(), ([groupDate, group]) => (
-          <List.Section title={"History " + groupDate} key={groupDate}>
+        groupedHistoryData?.map(({ groupDate, group }) => (
+          <List.Section
+            title={`History ${groupDate}${limitedHistoryData.length >= MAX_SEARCH_ALL_RESULTS ? ` (showing ${MAX_SEARCH_ALL_RESULTS}+)` : ""}`}
+            key={groupDate}
+          >
             {group.map((e) => (
               <CometListItems.TabHistory key={e.id} entry={e} profile={profile} type="History" />
             ))}
@@ -93,7 +110,9 @@ export default function Command() {
         ))
       )}
 
-      <List.Section title="Bookmarks">
+      <List.Section
+        title={`Bookmarks${bookmarkData.length > MAX_SEARCH_ALL_RESULTS ? ` (showing ${MAX_SEARCH_ALL_RESULTS} of ${bookmarkData.length})` : ""}`}
+      >
         {limitedBookmarkData.length === 0 ? (
           <List.Item title="No bookmarks found" key={"empty bookmark list item"} />
         ) : (
